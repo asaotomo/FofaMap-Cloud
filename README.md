@@ -1,4 +1,4 @@
-## FofaMap云查询版|[FofaMap春节版](https://github.com/asaotomo/FofaMap)
+## FofaMap云查询版|[FofaMap春节特别版](https://github.com/asaotomo/FofaMap)
 
 ### 0x00 工具简介
 
