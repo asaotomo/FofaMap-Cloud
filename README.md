@@ -2,7 +2,7 @@
 
 ### 0x00 工具简介
 
-FofaMap云查询版是基于C/S架构打造的Fofa查询神器，您仅需配置好一个服务端，即可实现多个客户端同时在线查询，其客户端支持FofaMap春节版全部功能。
+FofaMap云查询版是基于C/S架构打造的Fofa数据采集器，仅需配置好一个服务端，即可实现多个客户端同时在线查询，其客户端支持FofaMap春节版全部功能。
 
 ### 0x01 服务端
 
@@ -52,18 +52,19 @@ port = 15800
 客户端能够向服务端发送查询语句，获取查询内容，并将其美化输出。提供fofamap春节版全部功能，仅需配置服务器IP地址和通信口令即可使用。
 
 ```plain
-# 使用说明
+使用说明
 1.工具使用Python3开发，请确保您的电脑上已经安装了Python3环境。
 2.首次使用请在client目录下打开终端，并使用 python3 -m pip install -r requirements.txt 命令，来安装客户端必要的外部依赖。
 
 客户端查询示例：
 python3 fofamap.py -q 'ip="8.8.8.8"'
 
-fofamap具体使用方法请参考：
-https://github.com/asaotomo/FofaMap/blob/1.1.1/README.md
 ```
 
 ![img](https://cdn.nlark.com/yuque/0/2022/png/12839102/1644202838077-3415f8b7-9278-49a7-b1a5-b7ab98fe246f.png)
+
+fofamap具体使用方法请参考：[使用手册](https://github.com/asaotomo/FofaMap/blob/1.1.1/README.md)
+
 
 **客户端配置文件说明：**
 
