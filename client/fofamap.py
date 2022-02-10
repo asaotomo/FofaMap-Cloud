@@ -9,6 +9,8 @@ import os
 import time
 import re
 import requests
+import codecs
+import mmh3
 
 
 # 当前软件版本信息
@@ -20,8 +22,8 @@ def banner():
 | |_ / _ \| |_ / _` | |\/| |/ _` | '_ \ 
 |  _| (_) |  _| (_| | |  | | (_| | |_) |
 |_|  \___/|_|  \__,_|_|  |_|\__,_| .__/ 
-                                 |_|   V1.1.1  
-#Coded By Hx0战队  Update:2022.02.07""")
+                                 |_|   V1.1.2  
+#Coded By Hx0战队  Update:2022.02.10""")
 
 
 # 查询域名信息
@@ -300,10 +302,17 @@ def get_api(query_str, start_page, end_page, fields):
     try:
         data = res.json()
         return data
-    except Exception as e:
+    except:
         print(colorama.Fore.RED + "[!] 查询失败，可能服务端的FOFA-API-KEY错误或过期，请联系服务端管理员处理")
         exit(0)
 
+
+# 网站图标查询
+def get_icon_hash(ico):
+    favicon = requests.get("{}/favicon.ico".format(ico)).content
+    icon_hash = mmh3.hash(
+        codecs.lookup('base64').encode(favicon)[0])
+    return 'icon_hash="{}"'.format(icon_hash)
 
 
 if __name__ == '__main__':
@@ -314,6 +323,7 @@ if __name__ == '__main__':
         description="SearchMap (A fofa API information collection tool)")
     parser.add_argument('-q', '--query', help='Fofa Query Statement')
     parser.add_argument('-bq', '--bat_query', help='Fofa Batch Query')
+    parser.add_argument('-ico', '--icon_query', help='Fofa Favorites Icon Query')
     parser.add_argument('-s', '--scan_format', help='Output Scan Format', action='store_true')
     parser.add_argument('-o', '--outfile', default="fofa.xlsx", help='File Save Name')
     parser.add_argument('-n', '--nuclie', help='Use Nuclie To Scan Targets', action='store_true')
@@ -325,7 +335,8 @@ if __name__ == '__main__':
     scan_format = args.scan_format
     is_scan = args.nuclie
     update = args.update
-    if query_str or bat_query_file:
+    ico = args.icon_query
+    if query_str or bat_query_file or ico:
         # 初始化参数
         config = configparser.ConfigParser()
         # 读取配置文件
@@ -333,6 +344,8 @@ if __name__ == '__main__':
         if bat_query_file:
             bat_query(bat_query_file, scan_format)
         else:
+            if ico:
+                query_str = get_icon_hash(ico)
             # 获得查询结果
             database, fields = get_search(query_str, scan_format)
             # 输出excel文档
