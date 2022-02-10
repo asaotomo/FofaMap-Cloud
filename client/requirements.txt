@@ -1,4 +1,5 @@
-requests==2.22.0
-prettytable==3.0.0
-colorama==0.4.4
 XlsxWriter==3.0.2
+requests==2.22.0
+colorama==0.4.4
+mmh3==3.0.0
+prettytable==3.0.0
