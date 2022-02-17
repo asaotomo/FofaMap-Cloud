@@ -224,7 +224,11 @@ def get_search(query_str, scan_format):
     print(colorama.Fore.GREEN + "[+] 查询页数：{}-{}".format(start_page, end_page))
     print(colorama.Fore.YELLOW + "[-] 正在进行云查询，请稍后······")
     database = get_api(query_str, start_page, end_page, fields)
-    return database, fields
+    set_database = []
+    for data in database:
+        if data not in set_database:
+            set_database.append(data)
+    return set_database, fields
 
 
 # 打印查询结果
