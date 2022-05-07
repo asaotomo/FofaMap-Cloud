@@ -86,9 +86,9 @@ fields = protocol,ip,port,title,host,domain,icp
 
 [page]
 #查询启始页数
-start_page = 0
+start_page = 1
 #查询结束页数
-end_page = 1
+end_page = 2
 
 #不同用户使用fofamap调用fofa api接口查询次数如下：
 #企业会员 免费前100,000条/次
