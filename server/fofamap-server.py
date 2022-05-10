@@ -56,8 +56,12 @@ def api():
     end_page = request.values.get('end_page')
     fields = request.values.get('fields')  # 获取查询参数
     database = []
-    for page in range(int(start_page), int(end_page)):  # 从第1页查到第50页
-        data = client.get_data(query_str, page=page, fields=fields)  # 查询第page页数据的ip和城市
+    for page in range(int(start_page), int(end_page)):  # 从第1页查到第N页
+        try:
+            data = client.get_data(query_str, page=page, fields=fields)  # 查询第page页数据
+        except Exception as e:
+            fields = "Error"
+            data = {"results": ["{}".format(e)]}
         database = database + data["results"]
     print(database)
     return jsonify(database)
