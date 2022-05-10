@@ -23,7 +23,7 @@ def banner():
 |  _| (_) |  _| (_| | |  | | (_| | |_) |
 |_|  \___/|_|  \__,_|_|  |_|\__,_| .__/ 
                                  |_|   V1.1.2  
-#Coded By Hx0战队  Update:2022.03.02""")
+#Coded By Hx0战队  Update:2022.05.10""")
 
 
 # 查询域名信息
@@ -228,6 +228,10 @@ def get_search(query_str, scan_format):
     print(colorama.Fore.GREEN + "[+] 查询页数：{}-{}".format(start_page, end_page))
     print(colorama.Fore.YELLOW + "[-] 正在进行云查询，请稍后······")
     database = get_api(query_str, start_page, end_page, fields)
+    print(database)
+    if '"errror":true' in database[0]:
+        print(123)
+        fields = "Error"
     set_database = []
     for data in database:
         if data not in set_database:
@@ -273,6 +277,7 @@ def print_result(database, fields, scan_format):
         print(colorama.Fore.GREEN + '{}'.format(table))  # 打印查询表格
 
 
+# 批量查询
 def bat_query(bat_query_file, scan_format):
     with open(bat_query_file, "r+", encoding="utf-8") as f:
         bat_str = f.readlines()
@@ -293,6 +298,7 @@ def bat_query(bat_query_file, scan_format):
         id += 1
 
 
+# 调用云api进行数据查询
 def get_api(query_str, start_page, end_page, fields):
     ip = config.get("CouldServer", "ip")
     port = config.get("CouldServer", "port")
