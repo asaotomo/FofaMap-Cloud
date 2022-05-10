@@ -230,7 +230,6 @@ def get_search(query_str, scan_format):
     database = get_api(query_str, start_page, end_page, fields)
     print(database)
     if '"errror":true' in database[0]:
-        print(123)
         fields = "Error"
     set_database = []
     for data in database:
