@@ -6,6 +6,7 @@ import xlsxwriter
 from prettytable import PrettyTable
 import nuclei
 import os
+import sys
 import time
 import re
 import requests
@@ -23,12 +24,12 @@ def banner():
 |  _| (_) |  _| (_| | |  | | (_| | |_) |
 |_|  \___/|_|  \__,_|_|  |_|\__,_| .__/ 
                                  |_|   V1.1.2  
-#Coded By Hx0战队  Update:2022.05.10""")
+#Coded By Hx0战队  Update:2022.05.12""")
 
 
 # 查询域名信息
 def search_domain(query_str, fields, no):
-    start_page = 0
+    start_page = 1
     end_page = 2
     print(colorama.Fore.GREEN + "[+] 正在查询第{}个目标：{}".format(no, query_str))
     database = get_api(query_str, start_page, end_page, fields)
@@ -120,13 +121,13 @@ def nuclei_update():
 def nuclie_scan(filename):
     print(colorama.Fore.RED + "=====Nuclei扫描======")
     scan = nuclei.Scan()
-    print(colorama.Fore.GREEN + "[+] 即将启动nuclie对目标进行扫描")
+    print(colorama.Fore.GREEN + "[+] 即将启动nuclei对目标进行扫描")
     print(colorama.Fore.GREEN + "[+] 扫描引擎路径[{}]".format(scan.path))
     filename = "{}".format(filename).split(".")[0] + ".txt"
     print(colorama.Fore.GREEN + "[-] nuclie默认使用全扫描，是否改用自定义扫描功能？[Y/N][温馨提示：若要修改扫描目标，可在此时手动修改{}文件内容]".format(filename))
     switch = input()
     if switch == "Y" or switch == "y":
-        print(colorama.Fore.GREEN + "[+] 正在调用nuclie对目标进行自定义扫描")
+        print(colorama.Fore.GREEN + "[+] 正在调用nuclei对目标进行自定义扫描")
         print(colorama.Fore.GREEN + "[-] 请输入要使用的过滤器[1.tags 2.severity 3.author 4.customize]")
         mode = input()
         if mode == "1":
@@ -151,7 +152,7 @@ def nuclie_scan(filename):
             print(colorama.Fore.GREEN + "[+] 本次扫描语句[{}]".format(cmd))
 
     else:
-        print(colorama.Fore.GREEN + "[+] 正在调用nuclie对目标进行全扫描")
+        print(colorama.Fore.GREEN + "[+] 正在调用nuclei对目标进行全扫描")
         cmd = scan.multi_target(filename)
         print(colorama.Fore.GREEN + "[+] 本次扫描语句：{}".format(cmd))
     time.sleep(1)
@@ -312,13 +313,13 @@ def get_api(query_str, start_page, end_page, fields):
     res = requests.post("http://{}:{}/api".format(ip, port), data=data)
     if res.status_code == 403:
         print(colorama.Fore.RED + "[!] 查询失败，请检查CouldServer的key是否正确")
-        exit(0)
+        sys.exit(0)
     try:
         data = res.json()
         return data
     except:
         print(colorama.Fore.RED + "[!] 查询失败，可能服务端的FOFA-API-KEY错误或过期，请联系服务端管理员处理")
-        exit(0)
+        sys.exit(0)
 
 
 # 网站图标查询
