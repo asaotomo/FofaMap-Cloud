@@ -1,5 +1,11 @@
 ## FofaMap云查询版 | [FofaMap春节特别版](https://github.com/asaotomo/FofaMap)
 
+<p align="center">
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-_red.svg"></a>
+<a href="https://github.com/asaotomo/fofamap/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat"></a>
+<a href="https://github.com/sqlmapproject/sqlmap/actions/workflows/tests.yml"><img src="https://img.shields.io/badge/python-3.x-blue.svg"></a>
+</p>
+
 ### 0x00 工具简介
 
 FofaMap云查询版是基于C/S架构打造的Fofa数据采集器，仅需配置好一个服务端，即可实现多个客户端同时在线查询，其客户端支持FofaMap春节版全部功能。
