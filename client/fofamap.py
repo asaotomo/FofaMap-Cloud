@@ -228,7 +228,7 @@ def get_search(query_str, scan_format):
     print(colorama.Fore.GREEN + "[+] 查询页数：{}-{}".format(start_page, end_page))
     print(colorama.Fore.YELLOW + "[-] 正在进行云查询，请稍后······")
     database = get_api(query_str, start_page, end_page, fields)
-    if '"errror":true' in database[0]:
+    if len(database) > 0 and '"error":true' in database[0]:
         fields = "Error"
     set_database = []
     for data in database:
