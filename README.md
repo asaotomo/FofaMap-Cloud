@@ -1,4 +1,4 @@
-## FofaMap云查询版 | [FofaMap春节特别版](https://github.com/asaotomo/FofaMap)
+## FofaMap云查询版 | [FofaMap国庆特别版](https://github.com/asaotomo/FofaMap)
 
 <p align="center">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-_red.svg"></a>
@@ -118,6 +118,12 @@ end_page = 2
 <img width="318" alt="image" src="https://user-images.githubusercontent.com/67818638/156556995-f3798cb1-027e-47e6-84ba-b7537d85b158.png">
 
 ---
+
+**更新日志 V1.1.3 FofaMap云查询版**
+
+[+] 增加nuclie扫描指定单一扫描模板（templates）的功能。
+
+[+] 增加全局日志功能，用户可自行选择是否开启日志。
 
 **更新日志 V1.1.2 FofaMap云查询版**
 
