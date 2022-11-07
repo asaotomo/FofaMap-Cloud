@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, abort, current_app
+import requests
+from flask import Flask, request, jsonify, abort
 import configparser
 import fofa
 import logging
@@ -41,6 +42,7 @@ app.config['JSON_AS_ASCII'] = False
 log = Logger('server.log', level='debug')
 
 
+# 主api接口
 @app.route("/api", methods=['GET', 'POST'], endpoint='api')
 def api():
     query_str = request.values.get('query_str')
@@ -55,25 +57,41 @@ def api():
     start_page = request.values.get('start_page')
     end_page = request.values.get('end_page')
     fields = request.values.get('fields')  # 获取查询参数
-    database = []
-    for page in range(int(start_page), int(end_page)):  # 从第1页查到第N页
-        try:
-            data = client.get_data(query_str, page=page, fields=fields)  # 查询第page页数据
-        except Exception as e:
-            fields = "Error"
-            data = {"results": ["{}".format(e)]}
-        database = database + data["results"]
+    size = request.values.get('size')
+    full = request.values.get('full')
+    host_merge = request.values.get('host_merge')
+    if host_merge == "True":
+        url = "https://fofa.info/api/v1/host/{}?detail=true&email={}&key={}".format(query_str, email, user_key
+                                                                                    , timeout=30)
+        print(url)
+        res = requests.get(url)
+        database = res.json()
+    else:
+        if not size:
+            size = 100
+        if not full:
+            full = False
+        database = []
+        for page in range(int(start_page), int(end_page)):  # 从第1页查到第N页
+            try:
+                data = client.get_data(query_str, page=page, fields=fields, size=size, full=full)  # 查询第page页数据
+            except Exception as e:
+                fields = "Error"
+                data = {"results": ["{}".format(e)]}
+            database = database + data["results"]
     print(database)
     return jsonify(database)
 
 
 if __name__ == '__main__':
-    print("+-------------------+")
-    print("|Fofamap-Server-V1.0|")
-    print("+-------------------+")
+    print("+---------------------+")
+    print("|Fofamap-Server-V1.1.3|")
+    print("+---------------------+")
     config = configparser.ConfigParser()
     # 读取配置文件
     config.read('fofa.ini', encoding="utf-8")
     ip = config.get("CouldServer", "ip")
     port = config.get("CouldServer", "port")
+    email = config.get("userinfo", "email")
+    user_key = config.get("userinfo", "key")
     app.run(host=ip, port=port)
