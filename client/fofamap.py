@@ -25,7 +25,7 @@ def banner():
 |  _| (_) |  _| (_| | |  | | (_| | |_) |
 |_|  \___/|_|  \__,_|_|  |_|\__,_| .__/ 
                                  |_|   V1.1.3  
-#Coded By Hx0战队  Update:2022.11.07""")
+#Coded By Hx0战队  Update:2022.11.09""")
     logger_sw = config.get("logger", "logger")
     full_sw = config.get("full", "full")
     print(colorama.Fore.RED + "======基础配置=======")
@@ -182,12 +182,13 @@ def nuclie_scan(filename):
 def out_file_scan(filename, database):
     scan_list = []
     for target in database:
-        if "https://" not in target:
-            scan_list.append("http://{}\n".format(target))
-        elif "https://" in target and ":443" in target:
-            scan_list.append("{}\n".format(target).replace(":443", ""))
-        else:
-            scan_list.append("{}\n".format(target))
+        if target[1] == "http":
+            if "https://" not in target[0]:
+                scan_list.append("http://{}\n".format(target[0]))
+            elif "https://" in target and ":443" in target[0]:
+                scan_list.append("{}\n".format(target[0]).replace(":443", ""))
+            else:
+                scan_list.append("{}\n".format(target[0]))
     scan_list = set(scan_list)
     print(colorama.Fore.GREEN + "[+] 已自动对结果做去重处理".format(filename))
     filename = "{}".format(filename).split(".")[0] + ".txt"
@@ -239,7 +240,7 @@ def get_search(query_str, scan_format):
     size = config.get("size", "size")
     full = config.get("full", "full")
     if scan_format:
-        fields = "host"  # 获取查询参数
+        fields = "host,protocol"  # 获取查询参数
     else:
         fields = config.get("fields", "fields")  # 获取查询参数
     print(colorama.Fore.RED + "======查询内容=======")
@@ -263,12 +264,13 @@ def print_result(database, fields, scan_format):
     if scan_format:
         scan_list = []
         for target in database:
-            if "https://" not in target:
-                scan_list.append(colorama.Fore.GREEN + "http://{}".format(target))
-            elif "https://" in target and ":443" in target:
-                scan_list.append(colorama.Fore.GREEN + "{}".format(target).replace(":443", ""))
-            else:
-                scan_list.append(colorama.Fore.GREEN + "{}".format(target))
+            if target[1] == "http":
+                if "https://" not in target[0]:
+                    scan_list.append(colorama.Fore.GREEN + "http://{}".format(target[0]))
+                elif "https://" in target and ":443" in target[0]:
+                    scan_list.append(colorama.Fore.GREEN + "{}".format(target[0]).replace(":443", ""))
+                else:
+                    scan_list.append(colorama.Fore.GREEN + "{}".format(target[0]))
         scan_list = set(scan_list)
         for value in scan_list:
             print(value)
