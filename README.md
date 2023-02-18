@@ -1,4 +1,4 @@
-## FofaMap云查询版 | [FofaMap春节特别版](https://github.com/asaotomo/FofaMap)
+## FofaMap云查询版 | [FofaMap国庆特别版](https://github.com/asaotomo/FofaMap)
 
 <p align="center">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-_red.svg"></a>
