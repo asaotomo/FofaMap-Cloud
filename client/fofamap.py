@@ -347,11 +347,15 @@ def merge_port_detail(ports):
     set_database = []
     for port_info in ports:
         products = []
-        for product in port_info['products']:
-            products.append(product['product'])
-        item = [port_info['port'], port_info['protocol'], ",".join(products)]
+        if "products" in port_info.keys():
+            for product in port_info['products']:
+                product_info = "{0}({1})".format(product['product'], product['category'])
+                products.append(product_info)
+        else:
+            products.append("")
+        item = [port_info['port'], port_info['protocol'], ",".join(products), port_info['update_time']]
         set_database.append(item)
-    table = PrettyTable(["id", "port", "protocol", "products"])
+    table = PrettyTable(["id", "port", "protocol", "products", "update_time"])
     table.padding_width = 1
     table.header_style = "title"
     table.align = "c"
