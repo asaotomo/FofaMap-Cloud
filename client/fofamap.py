@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+import base64
 import configparser
 import colorama
 import xlsxwriter
@@ -25,7 +26,7 @@ def banner():
 |  _| (_) |  _| (_| | |  | | (_| | |_) |
 |_|  \___/|_|  \__,_|_|  |_|\__,_| .__/ 
                                  |_|   V1.1.3  
-#Coded By Hx0战队  Update:2023.02.19""")
+#Coded By Hx0战队  Update:2023.02.27""")
     logger_sw = config.get("logger", "logger")
     full_sw = config.get("full", "full")
     print(colorama.Fore.RED + "======基础配置=======")
@@ -47,7 +48,7 @@ def search_domain(query_str, fields, no):
     start_page = 1
     end_page = 2
     print(colorama.Fore.GREEN + "[+] 正在查询第{}个目标：{}".format(no, query_str))
-    database = get_api(query_str, start_page, end_page, fields)
+    database = get_api(query_str=query_str, start_page=start_page, end_page=end_page, fields=fields)
     return database
 
 
@@ -246,7 +247,8 @@ def get_search(query_str, scan_format):
     print(colorama.Fore.GREEN + "[+] 查询参数：{}".format(fields))
     print(colorama.Fore.GREEN + "[+] 查询页数：{}-{}".format(start_page, end_page))
     print(colorama.Fore.YELLOW + "[-] 正在进行云查询，请稍后······")
-    database = get_api(query_str, start_page, end_page, fields, size, full)
+    database = get_api(query_str=query_str, start_page=start_page, end_page=end_page, fields=fields, size=size,
+                       full=full)
     if len(database) > 0 and '"error":true' in database[0]:
         fields = "Error"
     set_database = []
@@ -315,8 +317,8 @@ def bat_query(bat_query_file, scan_format):
 
 
 # 调用云api进行数据查询
-def get_api(query_str, start_page=1, end_page=2, fields="protocol,ip,port,title,host,domain,icp", size=100, full=False,
-            host_merge=False):
+def get_api(query_str, query_fields="title", start_page=1, end_page=2,
+            fields="protocol,ip,port,title,host,domain,icp", size=100, full=False, host_merge=False, count_merge=False):
     ip = config.get("CouldServer", "ip")
     port = config.get("CouldServer", "port")
     client_key = config.get("CouldServer", "key")
@@ -328,7 +330,9 @@ def get_api(query_str, start_page=1, end_page=2, fields="protocol,ip,port,title,
         "fields": fields,
         "size": size,
         "full": full,
-        "host_merge": host_merge
+        "host_merge": host_merge,
+        "count_merge": count_merge,
+        "query_fields": query_fields
     }
     res = requests.post("http://{}:{}/api".format(ip, port), data=data)
     if res.status_code == 403:
@@ -342,20 +346,39 @@ def get_api(query_str, start_page=1, end_page=2, fields="protocol,ip,port,title,
         sys.exit(0)
 
 
-# 美化端口详情
-def merge_port_detail(ports):
+# 打印表单详情
+def print_table_detail(type, data):
     set_database = []
-    for port_info in ports:
-        products = []
-        if "products" in port_info.keys():
-            for product in port_info['products']:
-                product_info = "{0}({1})".format(product['product'], product['category'])
-                products.append(product_info)
+    if type == "ports":
+        for port_info in data:
+            products = []
+            if "products" in port_info.keys():
+                for product in port_info['products']:
+                    product_info = "{0}({1})".format(product['product'], product['category'])
+                    products.append(product_info)
+            else:
+                products.append("")
+            item = [port_info['port'], port_info['protocol'], ",".join(products), port_info['update_time']]
+            set_database.append(item)
+        table = PrettyTable(["id", "port", "protocol", "products", "update_time"])
+    if type == "aggs":
+        count_num = 0
+        for agg in data:
+            if "regions" in agg.keys():
+                city_rank = ""
+                for region in agg["regions"]:
+                    city_rank += "{0}({1})".format(region["name"], region["count"])
+                    city_rank += ","
+                item = [agg["name"], agg["count"], city_rank.rstrip(",")]
+                set_database.append(item)
+                count_num += 1
+            else:
+                item = [agg["name"], agg["count"]]
+                set_database.append(item)
+        if count_num == 0:
+            table = PrettyTable(["id", "name", "count_top5"])
         else:
-            products.append("")
-        item = [port_info['port'], port_info['protocol'], ",".join(products), port_info['update_time']]
-        set_database.append(item)
-    table = PrettyTable(["id", "port", "protocol", "products", "update_time"])
+            table = PrettyTable(["id", "name", "count_top5", "city_rank_top5"])
     table.padding_width = 1
     table.header_style = "title"
     table.align = "c"
@@ -378,8 +401,30 @@ def host_merge(query_host):
         print(colorama.Fore.GREEN + "[+] asn组织:{}".format(data["org"]))
         print(colorama.Fore.GREEN + "[+] 国家名:{}".format(data["country_name"]))
         print(colorama.Fore.GREEN + "[+] 国家代码:{}".format(data["country_code"]))
-        print(colorama.Fore.GREEN + '[+] 端口详情:\n{}'.format(merge_port_detail(data["ports"])))  # 打印port聚合表格
+        print(colorama.Fore.GREEN + '[*] 端口详情:\n{}'.format(print_table_detail("ports", data["ports"])))  # 打印port聚合表格
         print(colorama.Fore.GREEN + "[+] 数据更新时间:{}".format(data["update_time"]))
+    except Exception as e:
+        print(colorama.Fore.RED + "[!] 错误:{}".format(e))
+
+
+# 统计聚合查询
+def count_merge(query_fields, count_query):
+    try:
+        query_str = base64.b64encode(bytes(count_query.encode('utf-8'))).decode()
+        data = get_api(query_str=query_str, query_fields=query_fields, count_merge=True)
+        if data['error']:
+            print(colorama.Fore.RED + "[!] 错误:{}".format(data["errmsg"]))
+        else:
+            print(colorama.Fore.GREEN + "[+] 查询内容:{}".format(count_query))
+            print(colorama.Fore.GREEN + "[+] 统计总数:{}".format(data["size"]))
+            for key in data["distinct"].keys():
+                print(colorama.Fore.GREEN + "[+] {}:{}".format(key, data["distinct"][key]))
+            for key in data["aggs"].keys():
+                if data["aggs"][key] != [] and data["aggs"][key] is not None:
+                    print(colorama.Fore.GREEN + '[*] 统计详情（{0}）:\n{1}'.format(key,
+                                                                             print_table_detail("aggs", data["aggs"][
+                                                                                 key])))  # 打印统计聚合表格
+            print(colorama.Fore.GREEN + "[+] 数据更新时间:{}".format(data["lastupdatetime"]))
     except Exception as e:
         print(colorama.Fore.RED + "[!] 错误:{}".format(e))
 
@@ -454,6 +499,8 @@ if __name__ == '__main__':
         description="SearchMap (A fofa API information collection tool)")
     parser.add_argument('-q', '--query', help='Fofa Query Statement')
     parser.add_argument('-hq', '--host_query', help='Host Merge Query')
+    parser.add_argument('-cq', '--count_query', help='Fofa Count Query')
+    parser.add_argument('-f', '--query_fields', help='Fofa Query Fields', default="title")
     parser.add_argument('-bq', '--bat_query', help='Fofa Batch Query')
     parser.add_argument('-bhq', '--bat_host_query', help='Fofa Batch Host Query')
     parser.add_argument('-ico', '--icon_query', help='Fofa Favorites Icon Query')
@@ -466,6 +513,8 @@ if __name__ == '__main__':
     query_host = args.host_query
     bat_query_file = args.bat_query
     bat_host_file = args.bat_host_query
+    count_query = args.count_query
+    query_fields = args.query_fields
     filename = args.outfile
     scan_format = args.scan_format
     is_scan = args.nuclie
@@ -475,6 +524,9 @@ if __name__ == '__main__':
     if query_host:
         print(colorama.Fore.RED + "======Host聚合=======")
         host_merge(query_host)
+    if count_query:
+        print(colorama.Fore.RED + "======统计聚合=======")
+        count_merge(query_fields, count_query)
     if bat_host_file:
         bat_host_query(bat_host_file)
     if query_str or bat_query_file or ico:
