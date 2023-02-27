@@ -1,3 +1,5 @@
+import base64
+
 import requests
 from flask import Flask, request, jsonify, abort
 import configparser
@@ -24,14 +26,6 @@ class Logger(object):
         sh.setFormatter(format_str)  # 设置屏幕上显示的格式
         th = handlers.TimedRotatingFileHandler(filename=filename, when=when, backupCount=backCount,
                                                encoding='utf-8')  # 往文件里写入#指定间隔时间自动生成文件的处理器
-        # 实例化TimedRotatingFileHandler
-        # interval是时间间隔，backupCount是备份文件的个数，如果超过这个个数，就会自动删除，when是间隔的时间单位，单位有以下几种：
-        # S 秒
-        # M 分
-        # H 小时、
-        # D 天、
-        # W 每星期（interval==0时代表星期一）
-        # midnight 每天凌晨
         th.setFormatter(format_str)  # 设置文件里写入的格式
         self.logger.addHandler(sh)  # 把对象加到logger里
         self.logger.addHandler(th)
@@ -60,9 +54,19 @@ def api():
     size = request.values.get('size')
     full = request.values.get('full')
     host_merge = request.values.get('host_merge')
+    count_merge = request.values.get('count_merge')
+    query_fields = request.values.get('query_fields')
     if host_merge == "True":
         url = "https://fofa.info/api/v1/host/{}?detail=true&email={}&key={}".format(query_str, email, user_key
                                                                                     , timeout=30)
+        print(url)
+        res = requests.get(url)
+        database = res.json()
+    elif count_merge == "True":
+        url = "https://fofa.info/api/v1/search/stats?fields={}&qbase64={}&email={}&key={}".format(query_fields,
+                                                                                                  query_str,
+                                                                                                  email, user_key
+                                                                                                  , timeout=30)
         print(url)
         res = requests.get(url)
         database = res.json()
@@ -95,3 +99,4 @@ if __name__ == '__main__':
     email = config.get("userinfo", "email")
     user_key = config.get("userinfo", "key")
     app.run(host=ip, port=port)
+    
